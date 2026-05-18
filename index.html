@@ -478,6 +478,7 @@ window.renderCustomers = function(){
 window.openCustomer = function(id){
 
   currentCustomer = id;
+  window.currentCustomer = id;
 
   const customer = customers.find(
     item=>item.id == id
@@ -495,15 +496,15 @@ window.openCustomer = function(id){
     .getElementById("customerTitle")
     .innerText = `💰 ${customer.name} 금액 앱`;
 
-  const moneyRef = ref(
-    db,
-    `customers/${name}/money`
-  );
+ const moneyRef = ref(
+  db,
+  `customers/${id}/money`
+);
 
-  const historyRef = ref(
-    db,
-    `customers/${name}/history`
-  );
+const historyRef = ref(
+  db,
+  `customers/${id}/history`
+);
 
   onValue(moneyRef, (snapshot)=>{
 
