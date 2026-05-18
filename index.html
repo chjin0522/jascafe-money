@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>솔테크 금액 앱</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:#111827;
+  color:white;
+  display:flex;
+  justify-content:center;
+  padding:20px;
+}
+
+.app{
+  width:100%;
+  max-width:420px;
+}
+
+.card{
+  background:#1f2937;
+  border-radius:28px;
+  padding:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+.title{
+  font-size:28px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.balance-label{
+  color:#9ca3af;
+  font-size:14px;
+}
+
+.balance{
+  font-size:42px;
+  font-weight:800;
+  margin:12px 0 24px;
+  word-break:break-all;
+}
+
+.start-box{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+input{
+  width:100%;
+  background:#111827;
+  border:none;
+  color:white;
+  padding:16px;
+  border-radius:16px;
+  font-size:18px;
+  outline:none;
+}
+
+button{
+  border:none;
+  cursor:pointer;
+  transition:0.12s;
+}
+
+button:active{
+  transform:scale(0.92);
+}
+
+.set-btn{
+  background:#3b82f6;
+  color:white;
+  padding:16px 18px;
+  border-radius:16px;
+  font-weight:700;
+}
+
+.quick-buttons{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.quick-buttons button{
+  padding:18px;
+  border-radius:18px;
+  font-size:18px;
+  font-weight:700;
+  color:white;
+}
+
+.minus{
+  background:#ef4444;
+}
+
+.plus{
+  background:#10b981;
+}
+
+.action-row{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+.action-btn{
+  flex:1;
+  padding:18px;
+  border-radius:18px;
+  font-size:18px;
+  font-weight:700;
+  color:white;
+}
+
+.add-btn{
+  background:#10b981;
+}
+
+.sub-btn{
+  background:#ef4444;
+}
+
+.reset-btn{
+  background:#6b7280;
+}
+
+.history{
+  margin-top:24px;
+}
+
+.history-title{
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.history-list{
+  max-height:250px;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.item{
+  background:#111827;
+  padding:14px;
+  border-radius:14px;
+  display:flex;
+  justify-content:space-between;
+  font-size:15px;
+}
+
+.green{
+  color:#34d399;
+  font-weight:700;
+}
+
+.red{
+  color:#f87171;
+  font-weight:700;
+}
+
+.shake{
+  animation:shake 0.15s linear;
+}
+
+@keyframes shake{
+  0%{transform:translateX(-2px);}
+  25%{transform:translateX(2px);}
+  50%{transform:translateX(-2px);}
+  75%{transform:translateX(2px);}
+  100%{transform:translateX(0);}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="card">
+
+<div class="title">💰 솔테크 금액 앱</div>
+
+<div class="balance-label">현재 잔액</div>
+<div class="balance" id="balance">0원</div>
+
+<div class="start-box">
+  <input type="number" id="startMoney" placeholder="시작 금액 입력">
+  <button class="set-btn" onclick="setStartMoney()">설정</button>
+</div>
+
+<div class="quick-buttons">
+
+  <button class="minus" onclick="quickMinus(500)">-500</button>
+  <button class="minus" onclick="quickMinus(1000)">-1,000</button>
+  <button class="minus" onclick="quickMinus(1500)">-1,500</button>
+  <button class="minus" onclick="quickMinus(2000)">-2,000</button>
+  <button class="minus" onclick="quickMinus(5000)">-5,000</button>
+
+</div>
+
+<input type="number" id="display" placeholder="금액 입력">
+
+<div class="action-row">
+  <button class="action-btn add-btn" onclick="addMoney()">+ 추가</button>
+  <button class="action-btn sub-btn" onclick="subtractMoney()">- 차감</button>
+</div>
+
+<div class="action-row">
+  <button class="action-btn reset-btn" onclick="resetAll()">
+    초기화
+  </button>
+</div>
+
+<div class="history">
+
+  <div
+    class="history-header"
+    onclick="toggleHistory()"
+    style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      cursor:pointer;
+      margin-top:24px;
+    "
+  >
+    <div class="history-title">사용 내역</div>
+
+    <div
+      id="toggleIcon"
+      style="
+        font-size:28px;
+        font-weight:700;
+      "
+    >
+      +
+    </div>
+  </div>
+
+  <div
+    class="history-list"
+    id="history"
+    style="display:none;"
+  ></div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let money = 0;
+let historyData = [];
+
+updateUI();
+renderHistory();
+
+function save(){
+
+  saveMoneyToFirebase(money);
+  saveHistoryToFirebase(historyData);
+
+}
+
+function updateUI(){
+
+  const balance =
+    document.getElementById("balance");
+
+  balance.innerText =
+    money.toLocaleString() + "원";
+}
+
+function shake(){
+
+  const card =
+    document.querySelector(".card");
+
+  card.classList.add("shake");
+
+  setTimeout(()=>{
+
+    card.classList.remove("shake");
+
+  },150);
+
+  if(navigator.vibrate){
+
+    navigator.vibrate(30);
+  }
+}
+
+function setStartMoney(){
+
+  const value = Number(
+    document.getElementById("startMoney").value
+  );
+
+  if(!value) return;
+
+  money = value;
+
+  addHistory(
+    "초기 금액 설정",
+    value,
+    true
+  );
+
+  save();
+  updateUI();
+  renderHistory();
+  shake();
+}
+
+function clearInput(){
+
+  document.getElementById("display").value = "";
+}
+
+function addMoney(){
+
+  const value = Number(
+    document.getElementById("display").value
+  );
+
+  if(!value) return;
+
+  money += value;
+
+  addHistory(
+    "금액 추가",
+    value,
+    true
+  );
+
+  clearInput();
+
+  save();
+  updateUI();
+  renderHistory();
+  shake();
+}
+
+function subtractMoney(){
+
+  const value = Number(
+    document.getElementById("display").value
+  );
+
+  if(!value) return;
+
+  money -= value;
+
+  addHistory(
+    "금액 차감",
+    value,
+    false
+  );
+
+  clearInput();
+
+  save();
+  updateUI();
+  renderHistory();
+  shake();
+}
+
+function quickMinus(value){
+
+  money -= value;
+
+  addHistory(
+    "빠른 차감",
+    value,
+    false
+  );
+
+  save();
+  updateUI();
+  renderHistory();
+  shake();
+}
+
+function resetAll(){
+
+  if(confirm("초기화할까요?")){
+
+    money = 0;
+    historyData = [];
+
+    save();
+
+    updateUI();
+    renderHistory();
+    clearInput();
+    shake();
+  }
+}
+
+function addHistory(text, value, plus){
+
+  const now = new Date();
+
+  const time =
+    now.getHours().toString().padStart(2,"0")
+    + ":" +
+    now.getMinutes().toString().padStart(2,"0");
+
+  historyData.unshift({
+    text,
+    value,
+    plus,
+    time
+  });
+
+  if(historyData.length > 30){
+
+    historyData.pop();
+  }
+}
+
+function renderHistory(){
+
+  const history =
+    document.getElementById("history");
+
+  history.innerHTML = "";
+
+  historyData.forEach(item=>{
+
+    history.innerHTML += `
+      <div class="item">
+
+        <div>
+          <div>${item.text}</div>
+          <small>${item.time}</small>
+        </div>
+
+        <div class="${item.plus ? 'green' : 'red'}">
+
+          ${item.plus ? '+' : '-'}
+          ${Number(item.value).toLocaleString()}원
+
+        </div>
+
+      </div>
+    `;
+  });
+}
+
+function toggleHistory(){
+
+  const history =
+    document.getElementById("history");
+
+  const icon =
+    document.getElementById("toggleIcon");
+
+  if(history.style.display === "none"){
+
+    history.style.display = "flex";
+    icon.innerText = "-";
+
+  }else{
+
+    history.style.display = "none";
+    icon.innerText = "+";
+  }
+}
+
+</script>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  set,
+  onValue
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyC-CWxDLWl0nzZV12ULV-Rek9wKskU6pbU",
+
+  authDomain:
+    "money-app-df6c1.firebaseapp.com",
+
+  databaseURL:
+    "https://money-app-df6c1-default-rtdb.asia-southeast1.firebasedatabase.app/",
+
+  projectId: "money-app-df6c1",
+
+  storageBucket:
+    "money-app-df6c1.firebasestorage.app",
+
+  messagingSenderId:
+    "792123331415",
+
+  appId:
+    "1:792123331415:web:ed0e6d989bda3a3df96412"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase(app);
+
+const moneyRef = ref(db, "money");
+const historyRef = ref(db, "history");
+
+window.saveMoneyToFirebase = function(value){
+
+  set(moneyRef, value);
+
+};
+
+window.saveHistoryToFirebase = function(value){
+
+  set(historyRef, value);
+
+};
+
+window.listenMoney = function(callback){
+
+  onValue(moneyRef, (snapshot)=>{
+
+    callback(snapshot.val() || 0);
+
+  });
+};
+
+window.listenHistory = function(callback){
+
+  onValue(historyRef, (snapshot)=>{
+
+    const data = snapshot.val();
+
+    if(!data){
+
+      callback([]);
+      return;
+    }
+
+    const historyArray =
+      Array.isArray(data)
+      ? data
+      : Object.values(data);
+
+    callback(historyArray);
+
+  });
+};
+
+listenMoney((value)=>{
+
+  money = value;
+
+  updateUI();
+
+});
+
+listenHistory((value)=>{
+
+  historyData = value;
+
+  renderHistory();
+
+});
+
+</script>
+
+</body>
+</html>
