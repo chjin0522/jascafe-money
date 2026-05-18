@@ -515,11 +515,25 @@ window.openCustomer = function(id){
 
   onValue(historyRef, (snapshot)=>{
 
-    historyData = snapshot.val() || [];
+  const data = snapshot.val();
 
-    renderHistory();
+  if(!data){
 
-  });
+    historyData = [];
+
+  }else if(Array.isArray(data)){
+
+    historyData = data;
+
+  }else{
+
+    historyData = Object.values(data);
+
+  }
+
+  renderHistory();
+
+});
 };
 
 window.goHome = function(){
