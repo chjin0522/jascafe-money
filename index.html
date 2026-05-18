@@ -432,31 +432,52 @@ onValue(customersRef, (snapshot)=>{
 
 window.addCustomer = function(){
 
-  const input = document.getElementById("customerName");
-
-  const name = input.value.trim();
+  const name = document
+    .getElementById("customerName")
+    .value
+    .trim();
 
   const phone = document
     .getElementById("customerPhone")
     .value
     .trim();
 
-  if(!name || !phone) return;
+  if(!name){
 
-  const id = Date.now();
+    alert("이름을 입력해주세요.");
+    return;
+  }
 
-  const customerRef = ref(db, `customers/${id}`);
+  if(!phone){
 
-  set(customerRef, {
-    name,
-    phone,
-    money:0,
-    history:[]
+    alert("전화번호를 입력해주세요.");
+    return;
+  }
+
+  const id = Date.now().toString();
+
+  set(
+    ref(db, `customers/${id}`),
+    {
+      name: name,
+      phone: phone,
+      money: 0,
+      history: []
+    }
+  )
+  .then(()=>{
+
+    document.getElementById("customerName").value = "";
+    document.getElementById("customerPhone").value = "";
+
+  })
+  .catch((error)=>{
+
+    console.log(error);
+
+    alert("고객 추가 실패");
   });
 
-  input.value = "";
-
-  document.getElementById("customerPhone").value = "";
 };
 
 window.renderCustomers = function(){
