@@ -1,10 +1,13 @@
+# 고객 홈 + 금액 앱 통합 코드
+
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>인화카페 금액 앱</title>
+<title>인화카페 고객 관리</title>
 
 <style>
 
@@ -17,14 +20,13 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   background:#111827;
   color:white;
-  display:flex;
-  justify-content:center;
   padding:20px;
 }
 
-.app{
+.container{
   width:100%;
-  max-width:420px;
+  max-width:480px;
+  margin:auto;
 }
 
 .card{
@@ -35,27 +37,15 @@ body{
 }
 
 .title{
-  font-size:28px;
-  font-weight:700;
-  margin-bottom:10px;
-}
-
-.balance-label{
-  color:#9ca3af;
-  font-size:14px;
-}
-
-.balance{
-  font-size:42px;
+  font-size:30px;
   font-weight:800;
-  margin:12px 0 24px;
-  word-break:break-all;
+  margin-bottom:20px;
 }
 
-.start-box{
-  display:flex;
-  gap:10px;
-  margin-bottom:20px;
+.sub-title{
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:16px;
 }
 
 input{
@@ -76,38 +66,76 @@ button{
 }
 
 button:active{
-  transform:scale(0.92);
+  transform:scale(0.95);
 }
 
-.set-btn{
-  background:#3b82f6;
-  color:white;
-  padding:16px 18px;
+.row{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
+
+.btn{
+  flex:1;
+  padding:16px;
   border-radius:16px;
+  color:white;
+  font-size:17px;
   font-weight:700;
+}
+
+.add-btn{
+  background:#10b981;
+}
+
+.back-btn{
+  background:#6b7280;
+  margin-bottom:20px;
+}
+
+.customer-list{
+  margin-top:20px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.customer-item{
+  background:#111827;
+  padding:18px;
+  border-radius:18px;
+  font-size:18px;
+  font-weight:700;
+}
+
+.balance-label{
+  color:#9ca3af;
+  font-size:14px;
+}
+
+.balance{
+  font-size:42px;
+  font-weight:800;
+  margin:12px 0 24px;
 }
 
 .quick-buttons{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:10px;
-  margin-bottom:20px;
+  margin-top:16px;
 }
 
 .quick-buttons button{
   padding:18px;
   border-radius:18px;
+  color:white;
   font-size:18px;
   font-weight:700;
-  color:white;
 }
 
 .minus{
   background:#ef4444;
-}
-
-.plus{
-  background:#10b981;
 }
 
 .action-row{
@@ -120,12 +148,12 @@ button:active{
   flex:1;
   padding:18px;
   border-radius:18px;
+  color:white;
   font-size:18px;
   font-weight:700;
-  color:white;
 }
 
-.add-btn{
+.add-money-btn{
   background:#10b981;
 }
 
@@ -144,7 +172,6 @@ button:active{
 .history-title{
   font-size:20px;
   font-weight:700;
-  margin-bottom:10px;
 }
 
 .history-list{
@@ -153,6 +180,7 @@ button:active{
   display:flex;
   flex-direction:column;
   gap:8px;
+  margin-top:14px;
 }
 
 .item{
@@ -161,7 +189,6 @@ button:active{
   border-radius:14px;
   display:flex;
   justify-content:space-between;
-  font-size:15px;
 }
 
 .green{
@@ -174,16 +201,8 @@ button:active{
   font-weight:700;
 }
 
-.shake{
-  animation:shake 0.15s linear;
-}
-
-@keyframes shake{
-  0%{transform:translateX(-2px);}
-  25%{transform:translateX(2px);}
-  50%{transform:translateX(-2px);}
-  75%{transform:translateX(2px);}
-  100%{transform:translateX(0);}
+.hidden{
+  display:none;
 }
 
 </style>
@@ -191,303 +210,135 @@ button:active{
 
 <body>
 
-<div class="app">
+<div class="container">
 
-<div class="card">
+  <!-- 홈 화면 -->
+  <div class="card" id="homePage">
 
-<div class="title">💰 인화카페 금액 앱</div>
+    <div class="title">☕ 인화카페 고객 관리</div>
 
-<div class="balance-label">현재 잔액</div>
-<div class="balance" id="balance">0원</div>
-
-<div class="start-box">
-  <input type="number" id="startMoney" placeholder="시작 금액 입력">
-  <button class="set-btn" onclick="setStartMoney()">설정</button>
-</div>
-
-<div class="quick-buttons">
-
-  <button class="minus" onclick="quickMinus(500)">-500</button>
-  <button class="minus" onclick="quickMinus(1000)">-1,000</button>
-  <button class="minus" onclick="quickMinus(1500)">-1,500</button>
-  <button class="minus" onclick="quickMinus(2000)">-2,000</button>
-  <button class="minus" onclick="quickMinus(5000)">-5,000</button>
-
-</div>
-
-<input type="number" id="display" placeholder="금액 입력">
-
-<div class="action-row">
-  <button class="action-btn add-btn" onclick="addMoney()">+ 추가</button>
-  <button class="action-btn sub-btn" onclick="subtractMoney()">- 차감</button>
-</div>
-
-<div class="action-row">
-  <button class="action-btn reset-btn" onclick="resetAll()">
-    초기화
-  </button>
-</div>
-
-<div class="history">
-
-  <div
-    class="history-header"
-    onclick="toggleHistory()"
-    style="
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      cursor:pointer;
-      margin-top:24px;
-    "
-  >
-    <div class="history-title">사용 내역</div>
-
-    <div
-      id="toggleIcon"
-      style="
-        font-size:28px;
-        font-weight:700;
-      "
+    <input
+      type="text"
+      id="customerName"
+      placeholder="고객 이름 입력"
     >
-      +
+
+    <input
+      type="text"
+      id="customerPhone"
+      placeholder="전화번호 입력"
+      style="margin-top:12px;"
+    >
+
+    <div class="row">
+      <button
+        class="btn add-btn"
+        onclick="addCustomer()"
+      >
+        고객 추가
+      </button>
     </div>
+
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="고객 검색"
+      oninput="renderCustomers()"
+      style="margin-top:18px;"
+    >
+
+    <div class="customer-list" id="customerList"></div>
+
   </div>
 
-  <div
-    class="history-list"
-    id="history"
-    style="display:none;"
-  ></div>
+  <!-- 금액 앱 -->
+  <div class="card hidden" id="moneyPage">
 
-</div>
+    <button
+      class="btn back-btn"
+      onclick="goHome()"
+    >
+      ← 홈으로
+    </button>
 
-</div>
+    <div
+      class="title"
+      id="customerTitle"
+    >
+      고객 금액 앱
+    </div>
 
-</div>
+    <div class="balance-label">현재 잔액</div>
 
-<script>
+    <div class="balance" id="balance">0원</div>
 
-let money = 0;
-let historyData = [];
+    <input
+      type="number"
+      id="display"
+      placeholder="금액 입력"
+    >
 
-updateUI();
-renderHistory();
+    <div class="quick-buttons">
 
-function save(){
+      <button class="minus" onclick="quickMinus(500)">
+        -500
+      </button>
 
-  saveMoneyToFirebase(money);
-  saveHistoryToFirebase(historyData);
+      <button class="minus" onclick="quickMinus(1000)">
+        -1,000
+      </button>
 
-}
+      <button class="minus" onclick="quickMinus(5000)">
+        -5,000
+      </button>
 
-function updateUI(){
+    </div>
 
-  const balance =
-    document.getElementById("balance");
+    <div class="action-row">
 
-  balance.innerText =
-    money.toLocaleString() + "원";
-}
+      <button
+        class="action-btn add-money-btn"
+        onclick="addMoney()"
+      >
+        + 추가
+      </button>
 
-function shake(){
+      <button
+        class="action-btn sub-btn"
+        onclick="subtractMoney()"
+      >
+        - 차감
+      </button>
 
-  const card =
-    document.querySelector(".card");
+    </div>
 
-  card.classList.add("shake");
+    <div class="action-row">
 
-  setTimeout(()=>{
+      <button
+        class="action-btn reset-btn"
+        onclick="resetAll()"
+      >
+        초기화
+      </button>
 
-    card.classList.remove("shake");
+    </div>
 
-  },150);
+    <div class="history">
 
-  if(navigator.vibrate){
-
-    navigator.vibrate(30);
-  }
-}
-
-function setStartMoney(){
-
-  const value = Number(
-    document.getElementById("startMoney").value
-  );
-
-  if(!value) return;
-
-  money = value;
-
-  addHistory(
-    "초기 금액 설정",
-    value,
-    true
-  );
-
-  save();
-  updateUI();
-  renderHistory();
-  shake();
-}
-
-function clearInput(){
-
-  document.getElementById("display").value = "";
-}
-
-function addMoney(){
-
-  const value = Number(
-    document.getElementById("display").value
-  );
-
-  if(!value) return;
-
-  money += value;
-
-  addHistory(
-    "금액 추가",
-    value,
-    true
-  );
-
-  clearInput();
-
-  save();
-  updateUI();
-  renderHistory();
-  shake();
-}
-
-function subtractMoney(){
-
-  const value = Number(
-    document.getElementById("display").value
-  );
-
-  if(!value) return;
-
-  money -= value;
-
-  addHistory(
-    "금액 차감",
-    value,
-    false
-  );
-
-  clearInput();
-
-  save();
-  updateUI();
-  renderHistory();
-  shake();
-}
-
-function quickMinus(value){
-
-  money -= value;
-
-  addHistory(
-    "빠른 차감",
-    value,
-    false
-  );
-
-  save();
-  updateUI();
-  renderHistory();
-  shake();
-}
-
-function resetAll(){
-
-  if(confirm("초기화할까요?")){
-
-    money = 0;
-    historyData = [];
-
-    save();
-
-    updateUI();
-    renderHistory();
-    clearInput();
-    shake();
-  }
-}
-
-function addHistory(text, value, plus){
-
-  const now = new Date();
-
-  const time =
-    now.getHours().toString().padStart(2,"0")
-    + ":" +
-    now.getMinutes().toString().padStart(2,"0");
-
-  historyData.unshift({
-    text,
-    value,
-    plus,
-    time
-  });
-
-  if(historyData.length > 30){
-
-    historyData.pop();
-  }
-}
-
-function renderHistory(){
-
-  const history =
-    document.getElementById("history");
-
-  history.innerHTML = "";
-
-  historyData.forEach(item=>{
-
-    history.innerHTML += `
-      <div class="item">
-
-        <div>
-          <div>${item.text}</div>
-          <small>${item.time}</small>
-        </div>
-
-        <div class="${item.plus ? 'green' : 'red'}">
-
-          ${item.plus ? '+' : '-'}
-          ${Number(item.value).toLocaleString()}원
-
-        </div>
-
+      <div class="history-title">
+        사용 내역
       </div>
-    `;
-  });
-}
 
-function toggleHistory(){
+      <div
+        class="history-list"
+        id="history"
+      ></div>
 
-  const history =
-    document.getElementById("history");
+    </div>
 
-  const icon =
-    document.getElementById("toggleIcon");
+  </div>
 
-  if(history.style.display === "none"){
-
-    history.style.display = "flex";
-    icon.innerText = "-";
-
-  }else{
-
-    history.style.display = "none";
-    icon.innerText = "+";
-  }
-}
-
-</script>
+</div>
 
 <script type="module">
 
@@ -526,72 +377,298 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 const db = getDatabase(app);
 
-const moneyRef = ref(db, "money");
-const historyRef = ref(db, "history");
+let customers = [];
+let currentCustomer = "";
+let money = 0;
+let historyData = [];
 
-window.saveMoneyToFirebase = function(value){
+const customersRef = ref(db, "customers");
 
-  set(moneyRef, value);
+onValue(customersRef, (snapshot)=>{
 
+  const data = snapshot.val();
+
+  if(!data){
+    customers = [];
+  }else{
+    customers = Object.entries(data).map(([key, value])=>({
+      id:key,
+      name:value.name || "",
+      phone:value.phone || ""
+    }));
+  }
+
+  renderCustomers();
+
+});
+
+window.addCustomer = function(){
+
+  const input = document.getElementById("customerName");
+
+  const name = input.value.trim();
+
+  const phone = document
+    .getElementById("customerPhone")
+    .value
+    .trim();
+
+  if(!name || !phone) return;
+
+  const id = Date.now();
+
+  const customerRef = ref(db, `customers/${id}`);
+
+  set(customerRef, {
+    name,
+    phone,
+    money:0,
+    history:[]
+  });
+
+  input.value = "";
+
+  document.getElementById("customerPhone").value = "";
 };
 
-window.saveHistoryToFirebase = function(value){
+window.renderCustomers = function(){
 
-  set(historyRef, value);
+  const keyword = document
+    .getElementById("searchInput")
+    .value
+    .toLowerCase();
 
+  const list = document
+    .getElementById("customerList");
+
+  list.innerHTML = "";
+
+  customers
+    .filter(customer=>{
+
+      return (
+        customer.name
+          .toLowerCase()
+          .includes(keyword)
+        ||
+        customer.phone
+          .includes(keyword)
+      );
+
+    })
+    .forEach(customer=>{
+
+      list.innerHTML += `
+        <div
+          class="customer-item"
+          onclick="openCustomer('${customer.id}')"
+        >
+          <div>${customer.name}</div>
+          <div style="font-size:14px;color:#9ca3af;margin-top:4px;">
+            ${customer.phone}
+          </div>
+        </div>
+      `;
+
+    });
 };
 
-window.listenMoney = function(callback){
+window.openCustomer = function(id){
+
+  currentCustomer = id;
+
+  const customer = customers.find(
+    item=>item.id == id
+  );
+
+  document
+    .getElementById("homePage")
+    .classList.add("hidden");
+
+  document
+    .getElementById("moneyPage")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("customerTitle")
+    .innerText = `💰 ${customer.name} 금액 앱`;
+
+  const moneyRef = ref(
+    db,
+    `customers/${name}/money`
+  );
+
+  const historyRef = ref(
+    db,
+    `customers/${name}/history`
+  );
 
   onValue(moneyRef, (snapshot)=>{
 
-    callback(snapshot.val() || 0);
+    money = snapshot.val() || 0;
+
+    updateUI();
 
   });
-};
-
-window.listenHistory = function(callback){
 
   onValue(historyRef, (snapshot)=>{
 
-    const data = snapshot.val();
+    historyData = snapshot.val() || [];
 
-    if(!data){
-
-      callback([]);
-      return;
-    }
-
-    const historyArray =
-      Array.isArray(data)
-      ? data
-      : Object.values(data);
-
-    callback(historyArray);
+    renderHistory();
 
   });
 };
 
-listenMoney((value)=>{
+window.goHome = function(){
 
-  money = value;
+  document
+    .getElementById("moneyPage")
+    .classList.add("hidden");
 
+  document
+    .getElementById("homePage")
+    .classList.remove("hidden");
+};
+
+function save(){
+
+  if(!currentCustomer) return;
+
+  set(
+    ref(db, `customers/${currentCustomer}/money`),
+    money
+  );
+
+  set(
+    ref(db, `customers/${currentCustomer}/history`),
+    historyData
+  );
+}
+
+function updateUI(){
+
+  document.getElementById("balance")
+    .innerText =
+    money.toLocaleString() + "원";
+}
+
+window.addMoney = function(){
+
+  const value = Number(
+    document.getElementById("display").value
+  );
+
+  if(!value) return;
+
+  money += value;
+
+  addHistory("금액 추가", value, true);
+
+  document.getElementById("display").value = "";
+
+  save();
   updateUI();
+};
 
-});
+window.subtractMoney = function(){
 
-listenHistory((value)=>{
+  const value = Number(
+    document.getElementById("display").value
+  );
 
-  historyData = value;
+  if(!value) return;
+
+  money -= value;
+
+  addHistory("금액 차감", value, false);
+
+  document.getElementById("display").value = "";
+
+  save();
+  updateUI();
+};
+
+window.quickMinus = function(value){
+
+  money -= value;
+
+  addHistory("빠른 차감", value, false);
+
+  save();
+  updateUI();
+};
+
+window.resetAll = function(){
+
+  if(confirm("초기화할까요?")){
+
+    money = 0;
+    historyData = [];
+
+    save();
+
+    updateUI();
+    renderHistory();
+  }
+};
+
+function addHistory(text, value, plus){
+
+  const now = new Date();
+
+  const time =
+    now.getHours().toString().padStart(2,"0")
+    + ":" +
+    now.getMinutes().toString().padStart(2,"0");
+
+  historyData.unshift({
+    text,
+    value,
+    plus,
+    time
+  });
+
+  if(historyData.length > 30){
+    historyData.pop();
+  }
 
   renderHistory();
+}
 
-});
+function renderHistory(){
+
+  const history =
+    document.getElementById("history");
+
+  history.innerHTML = "";
+
+  historyData.forEach(item=>{
+
+    history.innerHTML += `
+
+      <div class="item">
+
+        <div>
+          <div>${item.text}</div>
+          <small>${item.time}</small>
+        </div>
+
+        <div class="${item.plus ? 'green' : 'red'}">
+          ${item.plus ? '+' : '-'}
+          ${Number(item.value).toLocaleString()}원
+        </div>
+
+      </div>
+
+    `;
+  });
+}
 
 </script>
 
 </body>
 </html>
+```
