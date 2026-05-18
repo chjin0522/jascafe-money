@@ -422,10 +422,11 @@ onValue(customersRef, (snapshot)=>{
     customers = [];
   }else{
     customers = Object.entries(data).map(([key, value])=>({
-      id:key,
-      name:value.name || "",
-      phone:value.phone || ""
-    }));
+  id:key,
+  name:value.name || "",
+  phone:value.phone || "",
+  money:value.money || 0
+}));
   }
 
   renderCustomers();
@@ -524,15 +525,35 @@ window.renderCustomers = function(){
             onclick="openCustomer('${customer.id}')"
           >
 
-            <div>${customer.name}</div>
+           <div style="
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+">
 
-            <div style="
-              font-size:14px;
-              color:#9ca3af;
-              margin-top:4px;
-            ">
-              ${customer.phone}
-            </div>
+  <div>
+    <div>${customer.name}</div>
+
+    <div style="
+      font-size:14px;
+      color:#9ca3af;
+      margin-top:4px;
+    ">
+      ${customer.phone}
+    </div>
+  </div>
+
+  <div style="
+    color:#34d399;
+    font-size:18px;
+    font-weight:800;
+    white-space:nowrap;
+  ">
+    ${Number(customer.money || 0).toLocaleString()}원
+  </div>
+
+</div>
 
           </div>
 
