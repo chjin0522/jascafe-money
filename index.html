@@ -409,6 +409,8 @@ let currentCustomer = "";
 let money = 0;
 let historyData = [];
 
+let moneyUnsubscribe = null;
+let historyUnsubscribe = null;
 
 const customersRef = ref(db, "customers");
 
@@ -629,7 +631,14 @@ window.openCustomer = function(id){
     .getElementById("customerTitle")
     .innerText = `💰 ${customer.name} 금액 앱`;
 
- const moneyRef = ref(
+if(moneyUnsubscribe){
+  moneyUnsubscribe();
+}
+
+if(historyUnsubscribe){
+  historyUnsubscribe();
+}
+  const moneyRef = ref(
   db,
   `customers/${id}/money`
 );
@@ -640,15 +649,14 @@ const historyRef = ref(
 );
 
 
-onValue(moneyRef, (snapshot)=>{
-
+moneyUnsubscribe = onValue(moneyRef, (snapshot)=>{
   money = snapshot.val() || 0;
 
   updateUI();
 
 });
 
-onValue(historyRef, (snapshot)=>{
+historyUnsubscribe = onValue(historyRef, (snapshot)=>{
   const data = snapshot.val();
 
   if(!data){
