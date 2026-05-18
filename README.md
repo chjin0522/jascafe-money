@@ -1,1 +1,1 @@
-# inhwacafe-money
+# inhwa-money
