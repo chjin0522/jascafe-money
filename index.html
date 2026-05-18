@@ -480,9 +480,8 @@ window.addCustomer = function(){
 
 };
 
-window.renderCustomers = function(){
 
- window.renderCustomers = function(){
+window.renderCustomers = function(){
 
   const keyword = document
     .getElementById("searchInput")
@@ -545,6 +544,8 @@ window.renderCustomers = function(){
     const item = document.getElementById(
       `customer-${customer.id}`
     );
+
+    if(!item) return;
 
     let startX = 0;
 
