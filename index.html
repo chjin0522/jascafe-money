@@ -383,8 +383,7 @@ let customers = [];
 let currentCustomer = "";
 let money = 0;
 let historyData = [];
-  let moneyListener = null;
-let historyListener = null;
+
 
 const customersRef = ref(db, "customers");
 
@@ -508,15 +507,8 @@ const historyRef = ref(
   `customers/${id}/history`
 );
 
-if(moneyListener){
-  moneyListener();
-}
 
-if(historyListener){
-  historyListener();
-}
-
-moneyListener = onValue(moneyRef, (snapshot)=>{
+onValue(moneyRef, (snapshot)=>{
 
   money = snapshot.val() || 0;
 
@@ -524,8 +516,7 @@ moneyListener = onValue(moneyRef, (snapshot)=>{
 
 });
 
-historyListener = onValue(historyRef, (snapshot)=>{
-
+onValue(historyRef, (snapshot)=>{
   const data = snapshot.val();
 
   if(!data){
